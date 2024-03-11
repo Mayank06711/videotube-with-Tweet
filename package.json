@@ -1,0 +1,16 @@
+{
+  "name": "backendproject",
+  "version": "1.0.0",
+  "description": "This is backend project of youtube",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "javascript",
+    "backend",
+    "project"
+  ],
+  "author": "Mayank Soni",
+  "license": "ISC"
+}
