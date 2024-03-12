@@ -11,8 +11,8 @@ class ApiError extends Error {
       this.errors = errors; // Assign the provided errors to the errors property of the instance
       this.stack = stack; // Assign the provided stack trace to the statck property of the instance
       this.success = false; // Indicate that the operation resulting in the error was not successful
-      if (stack) {
-        this.stack = stack; // If a stack trace is provided, assign it to the statck property
+      if (statck) {
+        this.statck = statck; // If a stack trace is provided, assign it to the statck property
       } else {
         Error.captureStackTrace(this, this.constructor); // Otherwise, capture the stack trace
       }
