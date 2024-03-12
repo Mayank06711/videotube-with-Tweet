@@ -2,43 +2,24 @@
 import dotenv from "dotenv";
 
 import connectDB from "./db/index.js";
+import {app} from "./app.js"
 
 dotenv.config({
-   path: ".env"
-   }); // we have add this in package json file under dev -r dotenv/config --experimental-json-modules
+  path: ".env",
+}); // we have add this in package json file under dev -r dotenv/config --experimental-json-modules
 
-connectDB();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+connectDB()
+  .then(() => {
+    app.on("error", (err) => {
+      console.error(err);
+      throw err;
+    });
+    app.listen(process.env.PORT || 8000, () => {
+      console.log(`Server is running on port ${process.env.PORT}`);
+    });
+  })
+  .catch((err) => console.log("MONGODB CONNECTION FAILED: " + err));
+// becuase connectDB is aysnc and will return a promise so when it is connected we will connect our serer
 
 /*
 
