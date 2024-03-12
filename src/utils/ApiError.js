@@ -3,7 +3,7 @@ class ApiError extends Error {
       statusCode, // HTTP status code for the error
       message = "Something went wrong apierror", // Error message (default value provided)
       errors = [], // Array of error details or validation errors (default value provided)
-      statck = "" // Stack trace for the error (default value provided)
+      stack = "" // Stack trace for the error (default value provided)
     ) {
       super(message); // Call the constructor of the Error class with the provided message
       this.statusCode = statusCode; // Assign the provided statusCode to the statusCode property of the instance
