@@ -107,6 +107,10 @@ userSchema.methods.generateRefreshToken = async function (){
       )
 }
 
+// userSchema.pre("save", (next)=>{   this will not work becuase in js arrow function has no access to this keyword that is it will not be ablr to acces
+//   //your code
+//   next()
+// })
 
   
 export const User = mongoose.model("User", userSchema);
