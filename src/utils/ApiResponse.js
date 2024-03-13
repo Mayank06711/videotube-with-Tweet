@@ -7,3 +7,7 @@ class ApiResponse {
         this.success = statusCode < 400; // Indicates whether the request was successful (status code < 400)
     }
 }
+
+export {
+    ApiResponse,
+}

@@ -56,7 +56,7 @@ userSchema.pre('save', async function (next) {
     if (!this.password.isModified('password')) return next(); // If not modified, proceed to the next middleware
   
     // Hash the password using bcrypt with a salt of 10 rounds
-    this.password = bcrypt.hashSync(this.password, 10);
+    this.password =await bcrypt.hashSync(this.password, 10);
   
     next(); // Proceed to the next middleware
     // Note: If the condition is removed, the password will be hashed every time the document is saved
