@@ -25,7 +25,7 @@ const registerUser = asyncHandler(async (req, res) => {
     //     throw new ApiError(400, "All fields are required")
     // }
     if (
-        [fullName, email, username, password].some((arrfield) => arrfield?trim()==="")
+        [fullName, email, username, password].some((arrfield) => arrfield?.trim()==="")
     ) 
     {
         throw new ApiError(400, "All fields are required");
@@ -75,7 +75,6 @@ const registerUser = asyncHandler(async (req, res) => {
      // step 9
      return res.status(201).json(
             new ApiResponse(200, createdUser , "User successully registered")
-        
      )
  });
 
