@@ -1,0 +1,64 @@
+{
+    "editor.fontSize": 20,
+    "editor.accessibilityPageSize": 50,
+    "editor.colorDecoratorsLimit": 1000,
+    "editor.experimentalInlineEdit.backgroundColoring": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultColorDecorators": false,
+    "colorful-comments.highlightPlainText": false,
+    "colorful-comments.tags": [
+
+
+
+
+
+        {
+            "tag": "!",
+            "color": "#ffffff",
+            "strikethrough": false,
+            "backgroundColor": "transparent"
+        },
+        {
+            "tag": "?",
+            "color": "#0076FF",
+            "strikethrough": false,
+            "backgroundColor": "transparent"
+        },
+        {
+            "tag": "//",
+            "color": "#ffffff",
+            "strikethrough": true,
+            "backgroundColor": "pink"
+        },
+        {
+            "tag": "^",
+            "color": "#EAF622",
+            "strikethrough": false,
+            "backgroundColor": "transparent"
+        },
+        {
+            "tag": "*",
+            "color": "#ffffff",
+            "strikethrough": false,
+            "backgroundColor": "transparent"
+        },
+        {
+            "tag": "&",
+            "color": "#FF06A0",
+            "strikethrough": false,
+            "backgroundColor": "transparent"
+        },
+        {
+            "tag": "~",
+            "color": "#BE00FF",
+            "strikethrough": false,
+            "backgroundColor": "transparent"
+        },
+        {
+            "tag": "todo",
+            "color": "#FF8C00",
+            "strikethrough": false,
+            "backgroundColor": "transparent"
+        }
+    ]
+}

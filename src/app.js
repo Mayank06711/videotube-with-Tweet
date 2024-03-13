@@ -21,18 +21,23 @@ app.use(
 
 // Adding middleware to parse incoming JSON requests with a maximum limit of 20KB
 
-app.use(express.json({ limit: "20kb" }));    //form bhara to data liya
-
+app.use(express.json({ limit: "20kb" })); //form bhara to data liya
 
 // Adding middleware to parse incoming URL-encoded form data with extended option
 
-app.use(express.urlencoded({ extended: true , limit:"20kb"}));    // this will use will data come form url and it will encode special character like space = %20 and other
+app.use(express.urlencoded({ extended: true, limit: "20kb" })); // this will use will data come form url and it will encode special character like space = %20 and other
 
+app.use(express.static("public")); // serve static content from static folder
 
-app.use(express.static("public"));   // serve static content from static folder
+app.use(cookieParser()); // to perfomr CRUD OPER ON USER WEB COOKIES
 
-app.use(express.cookieParser()); // to perfomr CRUD OPER ON USER WEB COOKIES
+// importing routes
+import userRouter from "./routes/user.route.js";
 
+// route declarations
 
+// Mounting the userRouter middleware at the "/api/v1/users" endpoint
+app.use("/api/v1/users", userRouter);   // here api/v1/users routes will act as prefix and controll will go to userRegister
 
+// http://localhost/api/v1/users/*
 export { app };

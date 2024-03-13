@@ -10,8 +10,8 @@ dotenv.config({
 
 connectDB()
   .then(() => {
-    app.on("error", (err) => {
-      console.error(err);
+    app.on("error from app.on", (err) => {
+      console.error(err + "im from index.js");
       throw err;
     });
     app.listen(process.env.PORT || 8000, () => {
