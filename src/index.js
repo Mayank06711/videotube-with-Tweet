@@ -5,7 +5,7 @@ import connectDB from "./db/index.js";
 import {app} from "./app.js"
 
 dotenv.config({
-  path: ".env",
+  path: "./.env",
 }); // we have add this in package json file under dev -r dotenv/config --experimental-json-modules
 
 connectDB()
