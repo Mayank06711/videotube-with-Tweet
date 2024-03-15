@@ -39,5 +39,6 @@ import userRouter from "./routes/user.route.js";
 // Mounting the userRouter middleware at the "/api/v1/users" endpoint
 app.use("/api/v1/users", userRouter);   // here api/v1/users routes will act as prefix and controll will go to userRegister
 
+
 // http://localhost/api/v1/users/*
 export { app };

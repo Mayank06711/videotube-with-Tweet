@@ -107,3 +107,11 @@ userSchema.methods.generateRefreshToken = async function () {
 // })
 
 export const User = mongoose.model("User", userSchema);
+
+
+// --------------DEFINATION--------------
+
+//   ALL THE METHODS CREATED ABOVE LIKE sign , isPasswordCorrect, generateRefreshToken, generateAccessToken
+//  are defined in userSchema and can be used only what we   get through User model from our DATABASE i.e  MONGODB 
+// thse can be used on ---"User"---- bcz it is creted by moongoose
+ 

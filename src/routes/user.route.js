@@ -1,7 +1,10 @@
 import { Router } from "express";
-import { registerUser } from "../controllers/user.controller.js";
+import { registerUser , loginUser,logoutUser } from "../controllers/user.controller.js";
 import {upload} from "../middlewares/multer.middleware.js"
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 const router = Router();
+
+// ------ register user
 
 router.route("/register").post(
     // Middleware to handle file uploads for avatar and coverImage fields
@@ -18,6 +21,13 @@ router.route("/register").post(
     // Handler function for registering user
     registerUser
 );
+
+// ------- login user
+router.route("/login").post(loginUser);
+
+// secure routes
+// ----------- logout user
+router.route("/logout").post(verifyJWT ,logoutUser);
 
 
 export default  router ;
