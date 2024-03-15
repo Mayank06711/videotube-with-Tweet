@@ -18,7 +18,7 @@ class ApiError extends Error {
       if (stack) {
         this.stack = stack; // If a stack trace is provided, assign it to the stack property
       } else {
-        console.log("Error  from api error ")
+        console.log("Error  from ApiError ")
         Error.captureStackTrace(this, this.constructor); // Otherwise, capture the stack trace
       }
     }

@@ -190,10 +190,11 @@ console.log("fullName email user password : ", fullName, email, username, passwo
   /*------------------Step 5 access and refresh token to the user----------------------*/ 
     const {accessToken, refreshToken} = await createAccessAndRefreshToken(user._id);
 
-    console.log(accessToken, refreshToken, "accessToken and refreshToken in loginUser");
+     console.log(accessToken, refreshToken, "accessToken and refreshToken in loginUser");
 
     const loggedInUser = await User.findById(user._id).
     select("-password -refreshToken");
+
     //  -- above {user} nd {loggedInUser} are different becuase above user will have empty refreshToken field {see user model} bcz we haven't specified refreshtoken earlier
     console.log(user, loggedInUser, "user ,  loggedInUser see diffrence"); 
      
@@ -245,10 +246,11 @@ console.log("fullName email user password : ", fullName, email, username, passwo
             httpOnly: true,
             secure: true,
           }
+          // console.log(req.user, "LOG OUT")
           return res
           .status(200)
-          .clearCookies("refreshToken", options)
-          .clearCookies("accessToken", options)
+          .clearCookie("refreshToken", options)
+          .clearCookie("accessToken", options)
           .json(new ApiResponse(200, {}, "User Logged Out"))
   })
   
