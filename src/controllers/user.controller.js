@@ -315,6 +315,136 @@ console.log("fullName email user password : ", fullName, email, username, passwo
     }
 
   })
+   
+
+  /*-----------------------Changing old password---------------*/
+
+  const changeCurrentPassword = asyncHandler(async (req, res)  => {
+       
+    //take  old password and new and confrimnewpas from user 
+    const {oldPassword, newPassword, confirmPassword} = req.body;
+    if (!(newPassword === confirmPassword)) {
+      throw new ApiError(400, "newPassword does match confirm password")
+    }
+    console.log(oldPassword, newPassword, "oldPassword and newPassword in changeCurrentPassword");
+    if (!oldPassword || !newPassword) {
+      throw new ApiError(400, "oldPassword and newPassword are reqiuired");
+    }
+
+    // now find user to update its oldpassword
+   
+      const user = await User.findById(req.user._id); // bcz while login we have added user in as obj in req through auth midd
+      const isPasswordValid =  await user.isPasswordCorrect(oldPassword); // method we declared in schema
+      if (!isPasswordValid) {
+        throw new ApiError(404, "Password does not match with your old password : Try again");
+      }
+
+      //  update user password and save new password
+
+      user.password = newPassword
+      await user.save({validateBeforeSave:false})
+
+      return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Password updated"))
+  })
+
+  // -----------------Get current user ----------------
+
+  const getCurrentUser = asyncHandler(async (req, res)  => {
+      return res
+      .status(200)
+      .json(
+        200, req.user,"Current user fetched successfully"
+      )
+  })
+
+
+  // ---------------UPDATE USER DETAILS ----------------
+   const updateUserDetails = asyncHandler(async (req, res) => {
+       const {fullName, email} = req.body;
+       console.log(fullName, email);
+
+       if (!(fullName || email)) {
+        throw new ApiError(401, "All fields are required")
+       }
+      
+     const user =  await User.findByIdAndUpdate(
+        req.user?._id, 
+          {
+           $set:{
+             fullName:fullName, 
+             email:email
+             }
+          },
+          { new: true }
+        ).select("-password")
+
+        return res 
+        .status(200)
+        .json(new ApiResponse(200, user,"User details Updated" ))
+   })
+
+
+  //  --------------------Update user Avatar-----------------------
+   const updateUserAvatar = asyncHandler(async (req, res) =>{
+    
+    const avatarLocalPath = req.file?.path;  // file not files bcz we only need one file i.e avatar
+    
+    if(!avatarLocalPath){
+      throw new ApiError(400, "Avatar file not found : Upload avatar")
+    }
+    
+     const avatar = await uploadOnCloudinary(avatarLocalPath);
+
+     if (!avatar.url) {
+        throw new ApiError(400, "Error while uploading avatar")
+     }
+
+   const user =   await User.findByIdAndUpdate(
+      req.user?._id,
+      {
+        $set:{
+          avatar:avatar.url
+        }
+      },
+      {new:true}
+      ).select("-password")
+      
+      return res 
+      .status(200)
+      .json(200, user,"Avatar successfully updated")
+   })
+
+  //  --------------- update coverImage ---------------
+  const updateUserCoverImage = asyncHandler(async (req, res) =>{
+    
+    const coverImageLocalPath = req.file?.path;  // file not files bcz we only need one file i.e avatar
+    
+    if(!coverImageLocalPath){
+      throw new ApiError(400, "Cover image file not found : Upload cover image")
+    }
+    
+     const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+
+     if (!coverImage.url) {
+        throw new ApiError(400, "Error while uploading cover image")
+     }
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+          $set:{
+            coverImage:coverImage.url
+          }
+        },
+        {new:true}      
+    ).select("-password")
+
+    return res 
+  .status(200)
+  .json( new ApiResponse(200, user, "coverImage updated"))
+  })
+
 
 
   /*------------------------EXPORT-----------------------*/ 
@@ -323,6 +453,11 @@ console.log("fullName email user password : ", fullName, email, username, passwo
   loginUser,
   logoutUser,
   refreshAccessTooken,
+  changeCurrentPassword,
+  getCurrentUser,
+  updateUserDetails,
+  updateUserAvatar,
+  updateUserCoverImage
  };
 
 
