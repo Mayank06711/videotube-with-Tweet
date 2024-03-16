@@ -109,9 +109,33 @@ userSchema.methods.generateRefreshToken =  function () {
 export const User = mongoose.model("User", userSchema);
 
 
-// --------------DEFINATION--------------
+
+
+
+
+
+// -----------------------------------DEFINATION-------------------------------------
 
 //   ALL THE METHODS CREATED ABOVE LIKE sign , isPasswordCorrect, generateRefreshToken, generateAccessToken
 //  are defined in userSchema and can be used only what we   get through User model from our DATABASE i.e  MONGODB 
 // thse can be used on ---"User"---- bcz it is creted by moongoose
- 
+
+
+/*-----------------------------------------JWTSIGN------------------------------------------------*/
+
+/*
+The jwt.sign() function is part of the JSON Web Token (JWT) library and is used to generate a JWT token based on the provided payload, secret key, and options. Here's an explanation of its parameters:
+
+Payload: This is the data that you want to include in the token. It can be any valid JSON object containing the user's identity or any other relevant information.
+
+Secret Key: This is a secret cryptographic key used to sign the token. It should be kept confidential and never shared publicly. The secret key is used to verify the authenticity of the token later during the verification process.
+
+Options: These are optional parameters that can customize the behavior of the token generation process. Some common options include:
+
+expiresIn: Specifies the expiration time of the token, after which it becomes invalid.
+notBefore: Specifies the time before which the token should not be considered valid.
+audience: Specifies the intended audience for the token.
+issuer: Specifies the issuer of the token.
+subject: Specifies the subject of the token.
+The jwt.sign() function returns a JWT token as a string, which can then be used for authentication and authorization purposes.
+ */
