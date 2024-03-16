@@ -355,7 +355,7 @@ console.log("fullName email user password : ", fullName, email, username, passwo
       return res
       .status(200)
       .json(
-        200, req.user,"Current user fetched successfully"
+       new ApiResponse(200,req.user,"Current user fetched successfully")
       )
   })
 
@@ -400,9 +400,9 @@ console.log("fullName email user password : ", fullName, email, username, passwo
      if (!avatar.url) {
         throw new ApiError(400, "Error while uploading avatar")
      }
-
    const user =   await User.findByIdAndUpdate(
       req.user?._id,
+
       {
         $set:{
           avatar:avatar.url
@@ -410,7 +410,6 @@ console.log("fullName email user password : ", fullName, email, username, passwo
       },
       {new:true}
       ).select("-password")
-      
       return res 
       .status(200)
       .json(200, user,"Avatar successfully updated")
@@ -445,6 +444,78 @@ console.log("fullName email user password : ", fullName, email, username, passwo
   .json( new ApiResponse(200, user, "coverImage updated"))
   })
 
+  // ----------------get user profile ------------------------
+
+  const getUserChannelProfile =asyncHandler(async (req, res) =>{
+    const {username} = req.params; // we are taking username form url no tfrom body
+
+    if (!username?.trim()) {
+      throw new ApiError(400, "Username is missing");
+    }
+
+    const channel =await User.aggregate([ // EACH CURLY BARCKET IS A STAGE 
+      {              // match the username
+        $match:{
+          username:username?.toLowerCase()
+        }
+      },
+      { 
+        $lookup:{  // this will give numbers of subsribers channel does have
+          from:"subscriptions", // that mean from where to look here it is ->Subscription 
+          localField:"_id", // from where to look here it is -> _id
+          foreignField:"channel", // that what to see in subscription>
+          as:"subscribers",
+          // 	as-> Name of the new array field to add to the input documents. This new array field contains the matching documents from the from collection. If the specified name already exists as a field in the input document, that field is overwritten.
+        }
+      },
+      {  // this will find nom of suncribed channel that channel owner has
+          $lookup:{
+            from:"subscriptions", 
+            localField:"_id",
+            foreignField:"subscriber",
+            as:"subscribedTo"
+          }
+      },
+      {
+        $addFields: {  //to add new fields
+                 subscriberCount: {
+                      $size:"$subscribers"  //used dollor bcz it it(subscribers) now a field
+                  },
+                  cannelIsSubscribedToCount:{
+                      $size:"$subscribedTo"
+                  },
+                  isSubscribed:{
+                    $cond:{
+                      if:{$in:[req.user?._id, "$subscribers.subscriber"]}, // here $subscribers is field that we added as object  and .subscriber is from model
+                      then:true,
+                      else:false
+                    }
+                  }
+        }
+      },
+      {
+        $project:{ // this is what we want to  To include any other fields from the input documents in the output documents, you must explicitly specify the inclusion in 
+          username:1,
+          fullName:1,
+          subscriberCount:1,
+          cannelIsSubscribedToCount:1,
+          isSubscribed:1,
+          avatar:1,
+          coverImage:1,
+        }
+      }
+    ])
+   
+     console.log(channel, "channel from channelpipleline")
+
+     if (!channel?.lenght) {
+         throw new ApiError(404, "channel deos not exists");
+     }
+      
+     return res
+     .status(200)
+     .json(new ApiResponse(200, channel[0],"User channel fetched successfully" ));
+  })
 
 
   /*------------------------EXPORT-----------------------*/ 
@@ -457,7 +528,8 @@ console.log("fullName email user password : ", fullName, email, username, passwo
   getCurrentUser,
   updateUserDetails,
   updateUserAvatar,
-  updateUserCoverImage
+  updateUserCoverImage,
+  getUserChannelProfile
  };
 
 
@@ -487,3 +559,37 @@ console.log("fullName email user password : ", fullName, email, username, passwo
    on the user's computer by the user's web browser while the user is browsing. 
    It allows the server to store user information.
  */
+
+
+/*------------------------------Pipelines and Aggrigation --------------------- */
+/* 
+// -------------------Aggregation-----------
+Aggregation operations process multiple documents and return computed results. You can use aggregation operations to:
+
+Group values from multiple documents(models) together.
+
+Perform operations on the grouped data to return a single result.
+
+Analyze data changes over time.
+
+// -----------------pipeline ------------------------------
+An aggregation pipeline consists of one or more stages that process  documents:
+
+Each stage performs an operation on the "{INPUT DOCUMENTS}". For example, a stage can filter documents, group documents, and calculate values.
+
+The {"DOCUMENTS THAT are OUTPUT FROM a STAGE"} are passed to the next stage.
+
+An aggregation pipeline can return results for groups of documents. For example, return the total, average, maximum, and minimum values.
+returns an ARRAY containing INFO
+WRITTE IN {},{},{} IF USE THREE CURLY BRACES IT MEANS ADDED THREE PIPELINES AND THESE REPRESENT THREE STAGES
+*/
+
+
+
+
+// ---------------------- $project-----------
+/*
+In MongoDB, the $project operator is used in aggregation pipelines to reshape documents by including, excluding, or transforming fields. 
+It allows you to specify which fields to include or exclude in the output documents,
+as well as to create new fields or compute expressions.
+*/
