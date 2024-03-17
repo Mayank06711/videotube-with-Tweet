@@ -43,7 +43,7 @@ router.route("/logout").post(verifyJWT ,logoutUser);
 
 router.route("/refresh-token").post(refreshAccessTooken);
 
-router.route("/change-password").port(verifyJWT, changeCurrentPassword)
+router.route("/change-password").post(verifyJWT, changeCurrentPassword)
 
 router.route("/current-user").get(verifyJWT, getCurrentUser)
 

@@ -5,7 +5,7 @@
  import { User } from "../models/user.model.js";
  import { uploadOnCloudinary } from "../utils/cloudinary.fileupload.js";
  import { ApiResponse } from "../utils/ApiResponse.js";
- import { Jwt } from "jsonwebtoken";
+ import  Jwt  from "jsonwebtoken";
 
 
 /*----CREATING METHOD FRO ACCESS AND REFRESH TOKEN----*/
@@ -234,8 +234,8 @@ console.log("fullName email user password : ", fullName, email, username, passwo
          await  User.findByIdAndUpdate(
             req.user._id, 
             {
-              $set: {
-                refreshToken: undefined
+              $unset: {
+                refreshToken: 1 //this remove field from databse
               }
             },
             {
@@ -247,7 +247,7 @@ console.log("fullName email user password : ", fullName, email, username, passwo
             httpOnly: true,
             secure: true,
           }
-          // console.log(req.user, "LOG OUT")
+          //  console.log(req.user, "LOG OUT")
           return res
           .status(200)
           .clearCookie("refreshToken", options)
@@ -260,17 +260,17 @@ console.log("fullName email user password : ", fullName, email, username, passwo
   //  The main purpose of the refreshAccessToken function is to refresh the access token for an authenticated user
   const refreshAccessTooken = asyncHandler(async (req, res)  => {
 
-    const incomingAccessToken = req.cookies.accessToken || req.body;
+    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
 
-    console.log(incomingAccessToken, "incomingAccessToken in refreshAccessTooken");
+    console.log(incomingRefreshToken, "incomingAccessToken in refreshAccessTooken");
 
-    if (!incomingAccessToken) {
+    if (!incomingRefreshToken) {
       throw new ApiError(401,"Unathorized Access");
     }
                       // verify incoming refresh  token with one we have and other stored at database
     try {
        const decodedToken = Jwt.verify(
-       incomingAccessToken, 
+        incomingRefreshToken, 
        process.env.REFRESH_TOKEN_SECRET
        )
   
@@ -284,7 +284,7 @@ console.log("fullName email user password : ", fullName, email, username, passwo
       throw new ApiError(401,"Invalid refreshToken");
       }
   
-      if (incomingAccessToken !== user?.refreshToken) {   // ja aa raha wo user ke pass hona bhi chahiye i.e the incomingrefreshtoken must be same as the on which user have at database
+      if (incomingRefreshToken !== user?.refreshToken) {   // ja aa raha wo user ke pass hona bhi chahiye i.e the incomingrefreshtoken must be same as the on which user have at database
          throw new ApiError(401,"Refresh token is expired or used"); 
       }
   
