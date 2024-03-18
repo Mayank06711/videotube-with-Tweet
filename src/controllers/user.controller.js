@@ -6,7 +6,7 @@
  import { uploadOnCloudinary } from "../utils/cloudinary.fileupload.js";
  import { ApiResponse } from "../utils/ApiResponse.js";
  import  Jwt  from "jsonwebtoken";
-
+import mongoose from "mongoose";
 
 /*----CREATING METHOD FRO ACCESS AND REFRESH TOKEN----*/
 
@@ -396,7 +396,7 @@ console.log("fullName email user password : ", fullName, email, username, passwo
     }
     
      const avatar = await uploadOnCloudinary(avatarLocalPath);
-
+     console.log(avatar,"Avatar updated")
      if (!avatar.url) {
         throw new ApiError(400, "Error while uploading avatar")
      }
@@ -412,10 +412,10 @@ console.log("fullName email user password : ", fullName, email, username, passwo
       ).select("-password")
       return res 
       .status(200)
-      .json(200, user,"Avatar successfully updated")
+      .json(new ApiResponse(200, user, "Your avatar has been updated"))
    })
 
-  //  --------------- update coverImage ---------------
+  //  --------------- update coverImage  ---------------
   const updateUserCoverImage = asyncHandler(async (req, res) =>{
     
     const coverImageLocalPath = req.file?.path;  // file not files bcz we only need one file i.e avatar
@@ -441,18 +441,18 @@ console.log("fullName email user password : ", fullName, email, username, passwo
 
     return res 
   .status(200)
-  .json( new ApiResponse(200, user, "coverImage updated"))
+  .json( new ApiResponse(200, user, "coverImage updated" ))
   })
 
   // ----------------get user profile ------------------------
 
   const getUserChannelProfile =asyncHandler(async (req, res) =>{
-    const {username} = req.params; // we are taking username form url no tfrom body
-
+    const {username} = req.params; // we are taking username form url not from body
+    
     if (!username?.trim()) {
       throw new ApiError(400, "Username is missing");
     }
-
+    console.log(username,"------------")
     const channel =await User.aggregate([ // EACH CURLY BARCKET IS A STAGE 
       {              // match the username
         $match:{
@@ -506,12 +506,12 @@ console.log("fullName email user password : ", fullName, email, username, passwo
       }
     ])
    
-     console.log(channel, "channel from channelpipleline")
+     console.log("yuyuyuu",channel[0], "channel from channelpipleline")
 
-     if (!channel?.lenght) {
+     if (channel?.lenght === 0 || channel?.lenght === null || channel[0] === undefined ) { // channel[0] === udefined means usr is searching for channel which does not ecxist
          throw new ApiError(404, "channel deos not exists");
      }
-      
+      console.log(1111111)
      return res
      .status(200)
      .json(new ApiResponse(200, channel[0],"User channel fetched successfully" ));
