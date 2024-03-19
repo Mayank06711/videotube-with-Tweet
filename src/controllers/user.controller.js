@@ -1,12 +1,12 @@
 /*--------------------IMPORTS--------------------*/
 
  import asyncHandler from "../utils/asyncHandler.js";
- import { ApiError } from "../utils/apiError.js";
+ import { ApiError } from "../utils/ApiError.js";
  import { User } from "../models/user.model.js";
  import { uploadOnCloudinary } from "../utils/cloudinary.fileupload.js";
  import { ApiResponse } from "../utils/ApiResponse.js";
  import  Jwt  from "jsonwebtoken";
-import mongoose from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 
 /*----CREATING METHOD FRO ACCESS AND REFRESH TOKEN----*/
 
@@ -68,7 +68,7 @@ console.log("fullName email user password : ", fullName, email, username, passwo
    ) {
     throw new ApiError(400, "All fields are required");
   }
-
+ 
                             // Step 3
 
   const existedUser =await User.findOne({
@@ -81,7 +81,7 @@ console.log("fullName email user password : ", fullName, email, username, passwo
 
                           // step 4
 
-  const avatarLocalPath = req.files?.avatar[0]?.path; // from multer we get this access
+  const avatarLocalPath = req.files?.avatar[0]?.path; // from multer we get this access i.e files and avatar[0] from multer will conatin path
   
   console.log(avatarLocalPath , req.files, "avatarLocalPath see me in USERCONTROLLER")
  
@@ -91,7 +91,7 @@ console.log("fullName email user password : ", fullName, email, username, passwo
      req.files && 
      Array.isArray(req.files.coverImage) 
      && req.files.coverImage.length > 0
-     ) {
+     ){
     coverImageLocalPath = req.files.coverImage[0].path;
   }
 
@@ -112,7 +112,7 @@ console.log("fullName email user password : ", fullName, email, username, passwo
   if (!avatar) {
     throw new ApiError(400, "avatar file is required");
   }
-  console.log("huii 1111")
+  // console.log("huii 1111")
                       // step 6 - create a new user on db
   
   const user = await User.create({
@@ -313,7 +313,7 @@ console.log("fullName email user password : ", fullName, email, username, passwo
     } catch (error) {
       throw new ApiError(401, error?.message||"Invalid newrefresh token")
     }
-
+    
   })
    
 
@@ -385,11 +385,10 @@ console.log("fullName email user password : ", fullName, email, username, passwo
         .json(new ApiResponse(200, user,"User details Updated" ))
    })
 
-
   //  --------------------Update user Avatar-----------------------
    const updateUserAvatar = asyncHandler(async (req, res) =>{
     
-    const avatarLocalPath = req.file?.path;  // file not files bcz we only need one file i.e avatar
+    const avatarLocalPath = req.file?.path;  // file not files bcz we only need one file i.e avatar and we have access to this bcz we have middelware named multer
     
     if(!avatarLocalPath){
       throw new ApiError(400, "Avatar file not found : Upload avatar")
@@ -444,7 +443,7 @@ console.log("fullName email user password : ", fullName, email, username, passwo
   .json( new ApiResponse(200, user, "coverImage updated" ))
   })
 
-  // ----------------get user profile ------------------------
+  // ----------------------get user profile----------------------------
 
   const getUserChannelProfile =asyncHandler(async (req, res) =>{
     const {username} = req.params; // we are taking username form url not from body
@@ -519,7 +518,7 @@ console.log("fullName email user password : ", fullName, email, username, passwo
 
 //  --------------watch history---------------------
     const getWatchHistory = asyncHandler(async (req, res)=>{
-    //   req.user._id   this will give string not mongodb id this is is converted by mongoose internally into mongodb id as objectId("")
+    // req.user._id   this will give string not mongodb id this is is converted by mongoose internally into mongodb id as objectId("")
      
     const user = await User.aggregate([
       {
@@ -588,7 +587,6 @@ console.log("fullName email user password : ", fullName, email, username, passwo
   getUserChannelProfile,
   getWatchHistory
  };
-
 
 
 

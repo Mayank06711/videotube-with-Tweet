@@ -1,7 +1,7 @@
 
 // ----importing required modules and mehtod
 import asyncHandler from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/apiError.js";
+import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import  jwt  from "jsonwebtoken";
 import { User } from "../models/user.model.js";
