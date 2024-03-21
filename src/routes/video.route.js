@@ -32,11 +32,11 @@ router
     );
 
 router
-    .route("/:videoId")
+    .route("/:video_Id") // you have to destruct req.params as video_Id in all the used methods here
     .get(getVideoById)
     .delete(deleteVideo)
     .patch(upload.single("thumbnail"), updateVideo);
 
-router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
+router.route("/toggle/publish/:video_Id").patch(togglePublishStatus);
 
 export default router

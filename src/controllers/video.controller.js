@@ -6,7 +6,9 @@ import {ApiResponse} from "../utils/ApiResponse.js"
 import asyncHandler from "../utils/asyncHandler.js"
 import {uploadOnCloudinary} from "../utils/cloudinary.fileupload.js"
 
-// you have not calculated no of vides a video will have that you need to calculate
+//  TODO: While deleting I am not deleting video/files from the cloudinary
+/*--------------------GET ALL VIDEOS---------------- */
+
 
 const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy, sortType, user_Id } = req.query
@@ -14,7 +16,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     if (!(query || isValidObjectId(user_Id))) {
         throw new ApiError(400, "Required field: query or userId")
     }
-    console.log(query, sortType, sortBy, sort, user_Id,"query, sortType, sortBy, sortBy")
+    console.log(query, sortType, sortBy, user_Id,"query, sortType, sortBy, sortBy")
     try{
       // Parse page and limit parameters
       const pageNumber = parseInt(page);
@@ -31,7 +33,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
             $or: [
                 { title: { $regex: query, $options: "i" } },
                 { description: { $regex: query, $options: "i" } },
-                { owner: mongoose.Types.ObjectId(user_Id) }
+                { owner:new mongoose.Types.ObjectId(user_Id) }
             ]
           }/* This stage matches documents based on the specified criteria: matching the title or description fields using case-insensitive regular expressions ($regex), or matching the owner field with the provided user_Id*/
        },
@@ -113,11 +115,11 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
             {
              $lookup:{
-        from: "playlists",
-        localField: "_id",
-        foreignField: "video",
-        as: "PlaylistsOnVideo",
-        pipeline:[
+             from: "playlists",
+             localField: "_id",
+             foreignField: "video",
+             as: "PlaylistsOnVideo",
+             pipeline:[
                 {
                     $project:{
                     title:1,
@@ -135,11 +137,11 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
            {
             $sort:{
-                $or: [
-                    { [sortBy]: sortType === "desc" ? -1 : 1 },
-                    { createdAt: -1 } // Sort by createdAt in descending order as an option newest first
-                  ]
-          } //sort by ascending or descending order
+                
+                    [sortBy]: sortType === "desc" ? -1 : 1 ,
+                     createdAt: -1  // Sort by createdAt in descending order as an option newest first
+                  
+          } //sort by ascending (1) or descending (-1)order
       },
 
        // Skip documents for pagination
@@ -165,17 +167,20 @@ const getAllVideos = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, video, "Video Retrived Successfully"))
     
      } catch (error) {
-    throw new ApiError(500,error, "Some error occurred while getting your video") 
+        throw new ApiError(500,error, "Some error occurred while getting your video") 
     }
-})
+})//Done loading videos from database
+
+
+/*------------------Publish Video------------------ */
 
 const publishAVideo = asyncHandler(async (req, res) => {
-    const { title, description, duration} = req.body
+    const { title, description} = req.body
     // TODO: get video, upload to cloudinary, create video
-    if (!(title || description || duration)) {
+    if (!(title || description )) {
         throw new ApiError(400, "Required fileds: title and description")
     }
-    
+
     const videoLocalPath = req.files?.videoFile[0]?.path
     const thumbnailLocalPath = req.files?.thumbnail[0]?.path
 
@@ -223,28 +228,52 @@ const publishAVideo = asyncHandler(async (req, res) => {
       }catch (error) {
         throw new ApiError(500,error, "Some error occurred while publishing video")
     }
-})
+}) //DONE when use postman always upload files again again else undefined error come
+
 
 /*-----------------GETVIDEOBYID----------------- */
-const getVideoById = asyncHandler(async (req, res) => {
-    const { video_id } = req.params
-    //TODO: get video by id
-    if (!video_id) {
-        throw new ApiError(400, "Please enter videoId")
-    }
-    const video = await Video.findById(video_id);
-    console.log(video, "getvideoById")
 
+const getVideoById = asyncHandler(async (req, res) => {
+    const { video_Id } = req.params    // destructuring should be same as in defined route name
+    //TODO: get video by id
+    if (!video_Id) {
+        throw new ApiError(400, "Please enter valid videoId")
+    }
+    const user = await User.findById(req.user._id)
+
+    const video = await Video.findById(video_Id);
+    
+    console.log(video, "getvideoById")
+     // {
+        //     $inc:{view:1},
+        // },
+        // {new:true}
     if (!video) {
         throw new ApiError(404, "Video not found")
+    }
+   
+    if(video.isPublished === false && video.owner.toString()!== user._id.toString()){
+        throw new ApiError(403, "Video is not published")
+    }
+    
+    const updateVideo = await Video.updateOne(
+        {_id: video_Id},
+        {$inc: {view :1}},
+        {new:true , validateBeforeSave:false}
+    )
+    
+    if (updateVideo.nModified === 0) {
+        throw new ApiError(404, "Video not Found")
     }
 
     res
     .status(200)
-    .json(new ApiResponse(200, video, "got your video"))
-})
+    .json(new ApiResponse(200, video, "Your required video"))
+}) // DONE , ENTER VIDEOID IN POSTMAN URL OR WHEREEVER YOU ARE USING IT
+
 
 /*----------------UPDATEVIDEO-----------------*/
+
 const updateVideo = asyncHandler(async (req, res) => {
     const { video_Id } = req.params
     //TODO: update video details like title, description, thumbnail
@@ -253,8 +282,11 @@ const updateVideo = asyncHandler(async (req, res) => {
     if (!video_Id) {
         throw new ApiError(400, "Invalid video id: Cannot update video")
     }
-     const {title, description} = req.body
-     const thumbnailLocalPath = req.file?.path
+
+    const {title, description} = req.body
+
+    const thumbnailLocalPath = req.file?.path
+
     if (!title || !description || !thumbnailLocalPath) {
         throw new ApiError(400, "title, description and thumbnail are required ")
     } 
@@ -275,7 +307,7 @@ const updateVideo = asyncHandler(async (req, res) => {
                 thumbnail:thumbnail.url || ""
             }
         },
-        {new:true}
+        {new:true, validateBeforeSave:false},
     )
 
     console.log(video, "video updated")
@@ -285,9 +317,11 @@ const updateVideo = asyncHandler(async (req, res) => {
     res
     .status(200)
     .json(new ApiResponse(200, video, "video updated successully"))
-})
+})//DONE , ENTER VALID VIDEOID AND ADD FORM DATA 
+
 
 /*------------------DELETE---------------------*/
+
 const deleteVideo = asyncHandler(async (req, res) => {
     const { video_Id } = req.params
     //TODO: delete video
@@ -299,15 +333,17 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
     console.log(video, "video")
     if (!video) {
-        throw new ApiError(404, "Video can not be deleted")
+        throw new ApiError(404, "Video is already deleted")
     }
     res
     .status(200)
     .json(new ApiResponse(200, video, "Video Deleted"))
 
-})
+}) // DONE ENTER VIDEO_ID DIECTLY IN POSTMAN URL
 
-/*----------------tigglePublishStatus----------------*/
+
+/*----------------TOGGLEPUBLISHSTATUS----------------*/
+
 const togglePublishStatus = asyncHandler(async (req, res) => {
     const { video_Id } = req.params
     console.log(video_Id, "video id")
@@ -318,16 +354,16 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     console.log(video, "video")
 
     if (!video) {
-        throw new ApiError(400, "can not toggle publish status")
+        throw new ApiError(400, "Can not toggle publish status , Either video does no texist or already deleted")
     }
 
-    video.isPublished =!video.isPublished
+    video.isPublished = !video.isPublished
     await  video.save({ validateBeforeSave: false })
 
     res
     .status(200)
-    .json(new ApiResponse(200, video_Id, "Video status toggles successfully"))
-})
+    .json(new ApiResponse(200, video_Id, "Video status is toggled successfully"))
+}) // DONE if ispublished is true video will be shown in othersise not
 
 export {
     getAllVideos,
