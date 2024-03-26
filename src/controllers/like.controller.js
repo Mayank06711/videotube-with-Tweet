@@ -9,22 +9,15 @@ import {asyncHandler} from "../utils/asyncHandler.js"
 const toggleVideoLike = asyncHandler(async (req, res) => {
     const {videoId} = req.params
     //TODO: toggle like on video
-    if (!(videoId || isValidObjectId(videoId) )) {
-        throw new ApiError(404, "No liked video found with given VideoId")
+    if (!isValidObjectId(videoId)) {
+        throw new ApiError(404, "Invalid video id provided")
     }
 
     try {
         const likedVideo = await Like.findOneAndUpdate(
-            {
-                video:videoId
-            },
-            {
-                video:""
-            },
-            {
-                new :true,
-                validateBeforeSave:false
-            },
+            { video: videoId },
+            { video: "" },
+            { new: true, validateBeforeSave: false },
         )
 
         if (!likedVideo) {
@@ -45,23 +38,16 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
 const toggleCommentLike = asyncHandler(async (req, res) => {
     const {commentId} = req.params
     //TODO: toggle like on comment
-    if (!(commentId || isValidObjectId(commentId) )) {
-        throw new ApiError(404, "No liked video found with given VideoId")
+    if (!isValidObjectId(commentId)) {
+        throw new ApiError(404, "Invalid commentId")
     }
 
     try {
         const likedComment = await Like.findOneAndUpdate(
-            {
-                comment:commentId
-            },
-            {
-                comment:""
-            },
-            {
-                new :true,
-                validateBeforeSave:false
-            },
-        )
+            { comment: commentId },
+            { comment: "" },
+            { new: true, validateBeforeSave : false},
+         )
 
         if (!likedComment) {
             throw new ApiError(404,likedComment, "No liked Comment found : Can no toggleLike")
@@ -81,22 +67,15 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
 const toggleTweetLike = asyncHandler(async (req, res) => {
     const {tweetId} = req.params
     //TODO: toggle like on tweet
-    if (!(tweetId || isValidObjectId(tweetId) )) {
-        throw new ApiError(404, "No liked tweet found with given tweetId")
+    if (!isValidObjectId(tweetId)) {
+        throw new ApiError(404, "Invalid tweetId provided : Provide valid tweet id")
     }
 
     try {
         const likedTweet = await Like.findOneAndUpdate(
-            {
-                tweet:tweetId
-            },
-            {
-                tweet:""
-            },
-            {
-                new :true,
-                validateBeforeSave:false
-            },
+            { tweet: tweetId },
+            { tweet: "" },
+            { new: true, validateBeforeSave: false },
         )
 
         if (!likedTweet) {
@@ -116,7 +95,20 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
 
 const getLikedVideos = asyncHandler(async (req, res) => {
     //TODO: get all liked videos
+    try {
+        const likedVideos = await Like.find() // find al liked videos so pass without any argument
     
+        if (!likedVideos || likedVideos.length === 0) {
+            throw new ApiError(404, "No liked videos found")
+        }
+    
+        res
+       .status(200)
+       .json(new ApiResponse(200, likedVideos, "Liked videos fetched successfully"))
+    } catch (error) {
+        throw new ApiError(500, error, "Some error occured while getting liked videos")
+    }
+
 })//DONE!
 
 export {
@@ -125,3 +117,19 @@ export {
     toggleVideoLike,
     getLikedVideos
 }
+
+
+//------------------DEFINITION--------------------------------
+/*
+In the provided code, Like.find() is a method call made on the Mongoose model Like. 
+Here's what it does:
+
+Like.find(): This Mongoose method is used to find documents in the Like 
+collection that match the specified criteria. When called without any
+arguments, it returns all documents in the collection.
+
+After executing Like.find(), the returned value will be an array containing 
+all the liked video documents found in the Like collection. This array
+will be assigned to the videos variable in the code, 
+which can then be processed further or sent back as a response to the clie
+*/
