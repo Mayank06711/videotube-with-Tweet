@@ -7,3 +7,6 @@ This is a project of backend where I had created the backend of youtube with all
 Middleware are responsible for creating and managing the backend of youtube with all its functionality and functionality features available to the  application 
 These are what  we call in our day day life in hindi "Ja rhe to milte jana" these middleware useds a flag called "Next" which act as indicator for the next middleware to what has been done and what need to do 
 - - [model link](https://app.eraser.io/workspace/PmlS3lCWuWBjK3FlW5b9?origin=share)
+
+-----------mongoose------------
+Mongoose is an Object Data Modeling (ODM) library for MongoDB and Node.js. It provides a higher-level abstraction over the MongoDB Node.js driver, making it easier to work with MongoDB databases by providing schemas, models, and other features.
