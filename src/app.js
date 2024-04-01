@@ -36,11 +36,11 @@ import userRouter from "./routes/user.route.js";
 import videoRouter from "./routes/video.route.js";
 import commentRouter from "./routes/comment.route.js";
 import tweetRouter from "./routes/tweet.route.js";
-// import likeRouter from "./routes/like.route.js";
-// import playlistRouter from "./routes/playlist.route.js"
-// import subscriptionRouter from "./routes/subscription.route.js"
-// import healthcheckRouter from "./routes/healthcheck.route.js"
-// import dashboardRouter from "./routes/dashboard.route.js"
+import likeRouter from "./routes/like.route.js";
+import playlistRouter from "./routes/playlist.route.js"
+import subscriptionRouter from "./routes/subscription.route.js"
+import healthcheckRouter from "./routes/healthcheck.route.js"
+import dashboardRouter from "./routes/dashboard.route.js"
 
 
 // route declarations

@@ -119,34 +119,34 @@ const deleteComment = asyncHandler(async (req, res) => {
     // TODO: delete a comment
     const {comment_Id} = req.params
 
-    console.log(comment_Id,"comment id")
+    console.log(comment_Id,"Comment id")
 
     if (!comment_Id) {
         throw new ApiError(404, "Enter Comment Id to delete comment")
     }
 
     try {
-        const comment = await Comment.findById(comment_Id)
+        const comment = await Comment.findById({_id:comment_Id})
         
         if (!comment) {
             throw new ApiError(404, "comment not found : See if comment id is correct")
         }
-
+       
         if (comment.owner.toString() !== req.user.id.toString()) {
             throw new ApiError(403, "You are not allowed to delete this comment")
         }
-
-        const deletedComment = await Comment.deleteOne(comment_Id)
-
+        
+        const deletedComment = await Comment.findByIdAndDelete(comment_Id)
+        
         if (!deletedComment) {
             throw new ApiError(500, "Comment could not deleted: try again")
         }
 
         res
         .status(200)
-        .json(new ApiResponse(200, deletedComment, "Comment deleted"))
+        .json(new ApiResponse(200, deletedComment, "Comment deleted successfully"))
     } catch (error) {
-        throw new ApiError(500, "Can not delete comment try again")
+        throw new ApiError(500, "An error occured while deleting your comment: please try again later")
     }
 })//DONE!
 
