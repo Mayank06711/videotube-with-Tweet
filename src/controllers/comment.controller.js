@@ -19,9 +19,9 @@ const getVideoComments = asyncHandler(async (req, res) => {
     
     try {
         const videoComments = await Comment.find({video:video_Id}).skip((page-1)*limit).limit(limit).exec();
-        console.log(videoComments, "comments")
-        if (!(videoComments || videoComments.length === 0)) {
-            throw new ApiError(404,"Couldn't find comments for specified video")
+        // console.log(videoComments, "comments")
+        if (!videoComments || videoComments.length === 0) {
+            throw new ApiError(404,"Could not find comments for specified video")
         }
         
         res
