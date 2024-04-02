@@ -81,9 +81,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
             },  
              { 
                  $addFields:{
-                   commentsOnVideo:{
-                     $first:"$commentsOnVideo"
-                }
+                   commentsOnVideo : "$commentsOnVideo"
               }
             }
           ]
