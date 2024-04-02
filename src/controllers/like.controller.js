@@ -7,96 +7,93 @@ import asyncHandler from "../utils/asyncHandler.js"
 /*--------------------toggleVideoLike----------------*/
 
 const toggleVideoLike = asyncHandler(async (req, res) => {
-    const {videoId} = req.params
-    //TODO: toggle like on video
+    const { videoId } = req.params;
+    // TODO: Toggle like on video
     if (!isValidObjectId(videoId)) {
-        throw new ApiError(404, "Invalid video id provided")
+        throw new ApiError(404, "Invalid video id provided");
     }
 
     try {
-        const likedVideo = await Like.findOneAndUpdate(
-            { video: videoId },
-            { video: "" },
-            { new: true, validateBeforeSave: false },
-        )
+        // Check if the user has already liked the video
+        const existingLike = await Like.findOne({ video: videoId });
 
-        if (!likedVideo) {
-            throw new ApiError(404,likedVideo, "No liked video found : Can no toggleLike on this video")
+        if (existingLike) {
+            // User has already liked the video, remove the like
+            await Like.deleteOne({ _id: existingLike._id });
+            res.status(200).json(new ApiResponse(200, null, "Like removed successfully"));
+        } else {
+            // User has not liked the video, add the like
+            const newLike = await Like.create({ video: videoId });
+            res.status(200).json(new ApiResponse(200, newLike, "Like added successfully"));
         }
-
-        res
-        .status(200)
-        .json(new ApiResponse(200, likedVideo, "Like toggled successfully"))
-        
     } catch (error) {
-        throw new ApiError(500, error, "Some error  occured while toggling video: Try again later")
+        throw new ApiError(500, error, "Some error occurred while toggling video like: Try again later");
     }
-})//DONE!
+});//DONE!
+
 
 /*-----------------toggleCommentLike----------------*/
 
 const toggleCommentLike = asyncHandler(async (req, res) => {
-    const {commentId} = req.params
-    //TODO: toggle like on comment
+    const { commentId } = req.params;
+    // TODO: Toggle like on comment
     if (!isValidObjectId(commentId)) {
-        throw new ApiError(404, "Invalid commentId")
+        throw new ApiError(404, "Invalid commentId");
     }
 
     try {
-        const likedComment = await Like.findOneAndUpdate(
-            { comment: commentId },
-            { comment: "" },
-            { new: true, validateBeforeSave : false},
-         )
+        // Check if the user has already liked the comment
+        const existingLike = await Like.findOne({ comment: commentId });
 
-        if (!likedComment) {
-            throw new ApiError(404,likedComment, "No liked Comment found : Can no toggleLike")
+        if (existingLike) {
+            // User has already liked the comment, remove the like
+            await Like.deleteOne({ _id: existingLike._id });
+            res.status(200).json(new ApiResponse(200, null, "Like removed successfully"));
+        } else {
+            // User has not liked the comment, add the like
+            const newLike = await Like.create({ comment: commentId });
+            res.status(200).json(new ApiResponse(200, newLike, "Like added successfully"));
         }
-
-        res
-        .status(200)
-        .json(new ApiResponse(200, likedComment, "Like toggled successfully"))
-        
     } catch (error) {
-        throw new ApiError(500, error, "Some error occured while toggling your liked comment: Try again later")
+        throw new ApiError(500, error, "Some error occurred while toggling comment like: Try again later");
     }
-})//DONE!
+});//DONE!
+
 
 /*--------------------toggleTweetLike-------------*/
 
 const toggleTweetLike = asyncHandler(async (req, res) => {
-    const {tweetId} = req.params
-    //TODO: toggle like on tweet
+    const { tweetId } = req.params;
+    // TODO: Toggle like on tweet
     if (!isValidObjectId(tweetId)) {
-        throw new ApiError(404, "Invalid tweetId provided : Provide valid tweet id")
+        throw new ApiError(404, "Invalid tweetId provided: Provide a valid tweet id");
     }
 
     try {
-        const likedTweet = await Like.findOneAndUpdate(
-            { tweet: tweetId },
-            { tweet: "" },
-            { new: true, validateBeforeSave: false },
-        )
+        // Check if the user has already liked the tweet
+        const existingLike = await Like.findOne({ tweet: tweetId });
 
-        if (!likedTweet) {
-            throw new ApiError(404,likedTweet, "No liked video found : Can no toggleLike on this tweet")
+        if (existingLike) {
+            // User has already liked the tweet, remove the like
+            await Like.deleteOne({ _id: existingLike._id });
+            res.status(200).json(new ApiResponse(200, null, "Like removed successfully"));
+        } else {
+            // User has not liked the tweet, add the like
+            const newLike = await Like.create({ tweet: tweetId });
+            res.status(200).json(new ApiResponse(200, newLike, "Like added successfully"));
         }
-
-        res
-        .status(200)
-        .json(new ApiResponse(200, likedTweet, "Like toggled successfully"))
-        
     } catch (error) {
-        throw new ApiError(500, error, "Some error occured while toggling your tweetLike: Try again later")
+        throw new ApiError(500, error, "Some error occurred while toggling tweet like: Try again later");
     }
-})//DONE!
+});//DONE!
+
 
 /*--------------------getLikesVideos------------------*/
 
 const getLikedVideos = asyncHandler(async (req, res) => {
     //TODO: get all liked videos
     try {
-        const likedVideos = await Like.find() // find al liked videos so pass without any argument
+        const likedVideos = await Like.find({ video: { $ne: null } }) // find all liked videos so pass without any argument
     
         if (!likedVideos || likedVideos.length === 0) {
             throw new ApiError(404, "No liked videos found")
@@ -108,14 +105,47 @@ const getLikedVideos = asyncHandler(async (req, res) => {
     } catch (error) {
         throw new ApiError(500, error, "Some error occured while getting liked videos")
     }
-
 })//DONE!
+
+
+const getLikedComments = asyncHandler(async (req, res) => {
+    // TODO: Get all liked comments
+    try {
+        const likedComments = await Like.find({ comment: { $ne: null } }); // Find documents where the "comment" field is not empty
+        
+        if (!likedComments || likedComments.length === 0) {
+            throw new ApiError(404, "No liked comments found");
+        }
+    
+        res.status(200).json(new ApiResponse(200, likedComments, "Liked comments fetched successfully"));
+    } catch (error) {
+        throw new ApiError(500, error, "Some error occurred while getting liked comments");
+    }
+});//DONE!
+
+const getLikedTweets = asyncHandler(async (req, res) => {
+    // TODO: Get all liked tweets
+    try {
+        const likedTweets = await Like.find({ tweet: { $ne: null } }); // Find documents where the "tweet" field is not empty
+        
+        if (!likedTweets || likedTweets.length === 0) {
+            throw new ApiError(404, "No liked tweets found");
+        }
+    
+        res.status(200).json(new ApiResponse(200, likedTweets, "Liked tweets fetched successfully"));
+    } catch (error) {
+        throw new ApiError(500, error, "Some error occurred while getting liked tweets");
+    }
+});//DONE!
+
 
 export {
     toggleCommentLike,
     toggleTweetLike,
     toggleVideoLike,
-    getLikedVideos
+    getLikedVideos,
+    getLikedComments,
+    getLikedTweets
 }
 
 
