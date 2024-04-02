@@ -9,11 +9,13 @@ import asyncHandler from "../utils/asyncHandler.js"
 
 const createTweet = asyncHandler(async (req, res) => {
     //TODO: create tweet
-    const tweetToBeCreated = req.body;
-    console.log(tweetToBeCreated, "tweet")
+    const {tweetToBeCreated} = req.body;
+
+    // console.log(tweetToBeCreated, "tweet")
     if (!tweetToBeCreated) {
         throw new ApiError(404, "No tweet created by user")
     }
+
     try {
         const createdTweet = await Tweet.create(
             {
@@ -64,7 +66,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
 const updateTweet = asyncHandler(async (req, res) => {
     //TODO: update tweet
     const {tweet_Id} = req.params
-    const {tweet } = req.body
+    const {tweet} = req.body
 
     console.log(tweet,tweet_Id ,"tweet and its id")
 
