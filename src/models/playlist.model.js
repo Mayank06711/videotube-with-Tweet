@@ -2,10 +2,10 @@ import mongoose ,{Schema} from "mongoose";
 
 const playlistSchema = new Schema (
     {
-        name:
+        playlist:
         {
             type:String,
-            required:true,
+            required:[true,"default playlist"],
         },
         description:
         {

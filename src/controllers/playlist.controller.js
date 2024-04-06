@@ -8,23 +8,30 @@ import asyncHandler from "../utils/asyncHandler.js"
 //------------------createPlaylist----------------
 
 const createPlaylist = asyncHandler(async (req, res) => {
-    const {name, description} = req.body
+    const {playlistName, description} = req.body
 
     //TODO: create playlist
-    if (!name) {
+    if (!playlistName) {
         throw new ApiError(404, "Name of playlist is required")
     }
 
     try {
+        console.log(playlistName)
         const newPlaylist = await Playlist.create(
             {
-                name: name,
+                playlist: playlistName,
                 description: description || "Playlist Description",
                 videos: [],
                 owner:req.user._id
             },
             {new: true, validateBeforeSave: false}
             )
+
+        if (!newPlaylist) {
+            throw new ApiError(404, "Could not create playlist with info:")
+        }
+
+        console.log("2")
         res
         .status(201)
         .json(new ApiResponse(201, newPlaylist, "Playlist created successfully"))
@@ -201,13 +208,13 @@ const deletePlaylist = asyncHandler(async (req, res) => {
 
 const updatePlaylist = asyncHandler(async (req, res) => {
     const {playlistId} = req.params
-    const {name, description} = req.body
+    const {playlistName, description} = req.body
     //TODO: update playlist
     if (!isValidObjectId(playlistId)) {
         throw new ApiError(404, "Invalid playlistId: Please provide a valid playlistId");
     }
 
-    if (!name) {
+    if (!playlistName) {
         throw new ApiError(404, "Name is required to update the playlist");
     }
 
@@ -215,7 +222,7 @@ const updatePlaylist = asyncHandler(async (req, res) => {
         const updatedPlaylist = await Playlist.findByIdAndUpdate(
            playlistId,
             {
-                name:name,
+                playlist:playlistName,
                 description:description
             },
             {new: true, validateBeforeSave: false},
