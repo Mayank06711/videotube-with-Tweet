@@ -16,16 +16,15 @@ const createPlaylist = asyncHandler(async (req, res) => {
     }
 
     try {
-        console.log(playlistName)
+        
         const newPlaylist = await Playlist.create(
             {
                 playlist: playlistName,
                 description: description || "Playlist Description",
                 videos: [],
                 owner:req.user._id
-            },
-            {new: true, validateBeforeSave: false}
-            )
+            }
+           )
 
         if (!newPlaylist) {
             throw new ApiError(404, "Could not create playlist with info:")
@@ -53,7 +52,8 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 
     try {
         const userPlaylists = await Playlist.find({owner:userId})
-        console.log(userPlaylists,"userPlaylists")
+
+        
         if (!userPlaylists || userPlaylists.length === 0) {
             throw new ApiError(404, `No playlists exist for user ${userId}`)
         }
@@ -78,7 +78,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
 
     try {
         const playlist = await Playlist.findById(playlistId)
-        console.log(playlist, "playlist by id")
+       // console.log(playlist, "playlist by id")
 
         if (!playlist) {
             throw new ApiError(404, "No playlist found")
@@ -86,7 +86,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
 
         res
         .status(200)
-        .josn(new ApiResponse(200, playlist, "Playlist has been fetched successfully"))
+        .json(new ApiResponse(200, playlist, "Playlist has been fetched successfully"))
 
     } catch (error) {
         throw new ApiError(500, error, "An error while getting playlist by id : try again later")
@@ -104,6 +104,20 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
     }
 
     try {
+        // Check if the video is already in the playlist
+        const playlist = await Playlist.findById(playlistId);
+        if (!playlist) {
+            throw new ApiError(404, "Playlist not found");
+        }
+
+        // Check if the video is already in the playlist's videos array
+        if (playlist.videos.includes(videoId)) {
+            // Video already exists in the playlist, send success response with the playlist
+            return res.status(200).json(new ApiResponse(200, playlist, "Video already in playlist"));
+        }
+
+        // Add the video to the playlist's videos array
+
         const videoAddedPlaylist = await Playlist.findByIdAndUpdate(
             playlistId,
             { 
@@ -149,7 +163,7 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
             throw new ApiError(404, "Video does not exist in playlist or playlist was not created")
         }
 
-        console.log(playlistWithoutVideo, "playlistWithoutVideo1")
+       // console.log(playlistWithoutVideo, "playlistWithoutVideo1")
          // Remove video from the playlist
          const indexOfVideoToBeRemoved = playlistWithoutVideo.videos.indexOf(videoId);
          /*
@@ -162,7 +176,7 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
              playlistWithoutVideo.videos.splice(indexOfVideoToBeRemoved, 1);
          }
  
-         console.log(playlistWithoutVideo, "playlistWithoutVideo2")
+        //console.log(playlistWithoutVideo, "playlistWithoutVideo2")
          // Save the modified playlist
          await playlistWithoutVideo.save();
 
@@ -189,11 +203,11 @@ const deletePlaylist = asyncHandler(async (req, res) => {
     try {
         const deletedPlaylist = await Playlist.findByIdAndDelete(playlistId)
 
-        console.log(deletedPlaylist, "playlist to be deleted")
+        
         if (!deletedPlaylist) {
             throw new ApiError(404, "Playlist not found to delete");
         }        
-        console.log(deletedPlaylist, "deletedPlaylist2")
+       
         res
         .status(200)
         .json(new ApiResponse(200, deletePlaylist, "Playlist deleted successfully"))
