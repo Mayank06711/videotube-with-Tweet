@@ -51,7 +51,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
         console.log(subscription,"subscription")
 
         if (!subscription) {
-            throw new ApiError(404, "Could not find subscription")
+            throw new ApiError(404, "Could not find channel for toggling subscription")
         }
         
         if (subscription.channel.toString() === req.user._id.toString()) {
