@@ -30,7 +30,7 @@ const getChannelStats = asyncHandler(async (req, res) => {
 
            const videos = await Video.find({owner:req.user._id, isPublished:true}) // will return array
             
-           const numOfVideos = 0
+           let numOfVideos = 0
 
            if (!videos || videos.length === 0) {
                channelStats.push(0)
@@ -58,7 +58,7 @@ const getChannelStats = asyncHandler(async (req, res) => {
 
            res
            .status(200)
-           .json(new ApiResponse(200, channelStats, "Channel Stats has been fetched successfully"))
+           .json(new ApiResponse(200, `numOfSubscribers: ${channelStats[0]} , numOfVideos : ${channelStats[1]} , numOfViews: ${channelStats[2]} , numOfLikes: ${channelStats[3]}`, "Channel Stats has been fetched successfully"))
        }
        else{
         throw new ApiError(403, "User not logged in : Login with channel official credentials")
@@ -71,27 +71,24 @@ const getChannelStats = asyncHandler(async (req, res) => {
 
 /*--------------------------ALLVIDEOSOFACAHNNEL------------------*/
 
+
 const getChannelVideos = asyncHandler(async (req, res) => {
     // TODO: Get all the videos uploaded by the channel
-    const {videos} = req.query
-
-    if (!videos) {
-        throw new ApiError(404, "Enter correct url for video")
-    }
-    
     try {
         let channelVideos
+
         if (req.user) {
+        //console.log(req.user._id, "user")
          channelVideos  = await Video.find({owner:req.user._id})
-         }
+        }
 
-         if (!channelVideos || channelVideos.length === 0) {
-            throw new ApiError(404, `No videos exist for channel ${req.user}`)
-         }
+        if (!channelVideos || channelVideos.length === 0) {
+            throw new ApiError(404, `No videos exist for channel of user: ${req.user.username}`)
+        }
 
-         res
-         .status(200)
-         .json(new ApiResponse(200, channelVideos, "Channel videos fetched successfully"))
+        res
+        .status(200)
+        .json(new ApiResponse(200, channelVideos, "Channel videos fetched successfully"))
 
     } catch (error) {
         throw new ApiError(404, error, "Some error occurred while fetching video your videos")
