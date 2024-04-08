@@ -1,4 +1,5 @@
 import mongoose, {isValidObjectId} from "mongoose"
+import {v2 as cloudinary} from "cloudinary"
 import {Video} from "../models/video.model.js"
 import {User} from "../models/user.model.js"
 import {ApiError} from "../utils/ApiError.js"
@@ -327,16 +328,67 @@ const deleteVideo = asyncHandler(async (req, res) => {
         throw new ApiError(404, "enter valid video id to know delete status") 
     }
 
-    const video = await Video.findByIdAndDelete(video_Id)
+    // Delete the video from Cloudinary
+    try {
+        const video = await Video.findById(video_Id)
 
-    console.log(video, "video")
-    if (!video) {
-        throw new ApiError(404, "Video is already deleted")
+        if (!video) {
+            throw new ApiError(404, "Video not found");
+        }
+      // to delete video from Cloudinary we need to pass path as name of the video that we want to delete
+        
+        const videoUrl = video.videoFile  // extract video url from video document
+
+        const urlArrayOfVideo = videoUrl.split("/") // split url into array from every / point
+
+        const videoFromUrl = urlArrayOfVideo[urlArrayOfVideo.length - 1] // extracting video name with format
+
+        const videoName = videoFromUrl.split(".")[0]   // .mp4 or .png etc should be removed to get name of url
+        
+        // for thumbnail 
+        
+        const thumbnailUrl = video.thumbnail  // extract video url from video document
+
+        const urlArrayOfThumbnail = thumbnailUrl.split("/") // split url into array from every / point
+
+        const thumbnailFromUrl = urlArrayOfThumbnail[urlArrayOfThumbnail.length - 1] // extracting video name with format 
+
+        const thumbnailName = thumbnailFromUrl.split(".")[0] // only name of thumbnail without any format
+
+        //deleting video document from database first then  from cloudinary
+
+        const deleteResultFromDatabase = await Video.findByIdAndDelete(video_Id)
+
+        console.log(deleteResultFromDatabase, "video")
+        if (!deleteResultFromDatabase) {
+            throw new ApiError(404, "Video is already deleted from database")
+        }
+
+        await cloudinary.uploader.destroy(videoName,
+              {
+                invalidate: true,
+                resource_type: 'video'
+              },
+              (error,result) => {
+            console.log("result:", result, "error:", error, "result or error after deleting video from cloudinary")
+            }
+         ); // Delete video file
+
+        await cloudinary.uploader.destroy(thumbnailName,
+            {
+                invalidate: true,
+            },
+              (error,result) => {
+            console.log("result:", result, "error:", error, "result or error after deleting thumbnail from cloudinary")
+            }
+        ); // Delete thumbnail
+
+        res
+        .status(200)
+        .json(new ApiResponse(200, video, "Video deleted from database"))
+    } catch (error) {
+        throw new ApiError(500, error, "Failed to delete video:Try again later");
     }
-    res
-    .status(200)
-    .json(new ApiResponse(200, video, "Video Deleted"))
-
 }) // DONE ENTER VIDEO_ID DIECTLY IN POSTMAN URL
 
 
@@ -423,4 +475,14 @@ Example: { $limit: pageSize } limits the number of documents to pageSize.
 --------------------------$sort:
 Functionality: Sorts documents in the pipeline based on specified fields and sort orders.
 Usage: Allows ordering the documents before passing them to the next stage.
-Example: { $sort: { field1: 1, field2: -1 } } sorts documents by field1 in ascending order and field2 in descending order.*/
+Example: { $sort: { field1: 1, field2: -1 } } sorts documents by field1 in ascending order and field2 in descending order.
+-*/
+
+/*-------------------------DELETING FILES FROM CLOUDINARY ----------------
+STEPS TO FOLLOW
+1> the method which cloudinary suggest to delete files from cloudinary using nodeJs is destroy [cloudinary.v2.uploader.destroy(public_id, options).then(callback);] for nodeJs
+destroy takes three arguments which are PUBLIC_ID, options and callback
+PUBLIC_ID: this is not the url that you get from cloudinary server, this requires name of file (which is given by either u or cloudinary itself) which is to be extracted as above 
+Options:type of files to be deleted from cloudinary, default is image but for other u need to define resource_type of files like video raw etc
+callback: function to be called after success or failure of delete operation on cloudinary which return a reuslt as promise with status code 
+*/
