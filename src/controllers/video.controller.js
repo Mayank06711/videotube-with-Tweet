@@ -2,10 +2,12 @@ import mongoose, {isValidObjectId} from "mongoose"
 import {v2 as cloudinary} from "cloudinary"
 import {Video} from "../models/video.model.js"
 import {User} from "../models/user.model.js"
+import {Comment} from "../models/comment.model.js"
+import {Like} from "../models/like.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import asyncHandler from "../utils/asyncHandler.js"
-import {uploadOnCloudinary,deleteOnCloudinaryVideo} from "../utils/cloudinary.fileupload.js"
+import {uploadOnCloudinary, deleteOnCloudinaryVideo} from "../utils/cloudinary.fileupload.js"
 
 //  TODO: While deleting I am not deleting video/files from the cloudinary
 /*--------------------GET ALL VIDEOS---------------- */
@@ -324,8 +326,8 @@ const updateVideo = asyncHandler(async (req, res) => {
 const deleteVideo = asyncHandler(async (req, res) => {
     const { video_Id } = req.params
     //TODO: delete video
-    if (!video_Id) {
-        throw new ApiError(404, "enter valid video id to know delete status") 
+    if (!isValidObjectId(video_Id) && !video_Id?.trim()) {
+        throw new ApiError(404, "enter valid video id to know delete video") 
     }
 
     // Delete the video from Cloudinary
@@ -335,7 +337,9 @@ const deleteVideo = asyncHandler(async (req, res) => {
         if (!video) {
             throw new ApiError(404, "Video not found");
         }
-      // to delete video from Cloudinary we need to pass path as name of the video that we want to delete
+        
+
+      //METHOD-1  To delete video from Cloudinary we need to pass path as name of the video that we want to delete
         
         const videoUrl = video.videoFile  // extract video url from video document
 
@@ -354,35 +358,39 @@ const deleteVideo = asyncHandler(async (req, res) => {
         const thumbnailFromUrl = urlArrayOfThumbnail[urlArrayOfThumbnail.length - 1] // extracting video name with format 
 
         const thumbnailName = thumbnailFromUrl.split(".")[0] // only name of thumbnail without any format
-
+    
         //deleting video document from database first then  from cloudinary
 
-        const deleteResultFromDatabase = await Video.findByIdAndDelete(video_Id)
+        if (video.owner.toString() === req.user._id.toString()) {
 
-        console.log(deleteResultFromDatabase, "video")
+        const deleteResultFromDatabase = await Video.findByIdAndDelete(video_Id)
+         // console.log(deleteResultFromDatabase, "video")
         if (!deleteResultFromDatabase) {
             throw new ApiError(404, "Video is already deleted from database")
         }
 
-        await cloudinary.uploader.destroy(videoName,
-              {
-                invalidate: true,
-                resource_type: 'video'
-              },
-              (error,result) => {
-            console.log("result:", result, "error:", error, "result or error after deleting video from cloudinary")
-            }
-         ); // Delete video file
+        await deleteOnCloudinaryVideo(videoName); // Delete video file
 
         await cloudinary.uploader.destroy(thumbnailName,
             {
                 invalidate: true,
+               // resource_type:"image"
             },
               (error,result) => {
-            console.log("result:", result, "error:", error, "result or error after deleting thumbnail from cloudinary")
+            console.log("result:", result, ", error:", error, "result or error after deleting thumbnail from cloudinary")
             }
         ); // Delete thumbnail
 
+        const comments = await Comment.find({ video: deleteResultFromDatabase._id});
+
+        const commentsIds = comments.map((comment) => comment._id); // taking out the commentId
+        
+        await Like.deleteMany({video: deleteResultFromDatabase._id});
+        await Like.deleteMany({comment: { $in: commentsIds }}); // deleting all comments of the video
+        await Comment.deleteMany({video: deleteResultFromDatabase._id});
+    }else {
+        throw new ApiError(403, "You are not authorized to delete this video")
+    }
         res
         .status(200)
         .json(new ApiResponse(200, video, "Video deleted from database"))

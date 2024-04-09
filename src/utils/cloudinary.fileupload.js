@@ -35,20 +35,21 @@
        
         return null;
     }
-}
+}//Upload file on cloudinary
 
 
-export const deleteOnCloudinaryVideo = async (oldFilePublicId) => {
+ const deleteOnCloudinaryVideo = async (oldFilePublicId) => {
   try {
     if(!oldFilePublicId) return null;
     // delete the file on cloudinary.
-    const response = await cloudinary.uploader.destroy(oldFilePublicId, {"resource_type": "video"});
-    // console.log("File deleted on cloudinary", oldFilePublicId);
+    const response = await cloudinary.uploader.destroy(oldFilePublicId, { invalidate: true, resource_type: 'video'});
+    console.log("File deleted on cloudinary", oldFilePublicId);
     return response;
   } 
   catch (error) {
-    return null;
+    return error;
   }
 };
 
+// for image resource-type raw
 export {uploadOnCloudinary, deleteOnCloudinaryVideo}
