@@ -65,7 +65,7 @@ API documentation can be found in the `docs` directory of this repository.
 
 ### Contributors
 - Mayank Soni: Project lead and primary developer
-- Hitesh Chaudary Aka Chai aur Code: [Guide and tutor](https://youtu.be/EH3vGeqeIAo?feature=shared)
+- Hitesh Chaudhary Aka Chai aur Code: [Guide and tutor](https://youtu.be/EH3vGeqeIAo?feature=shared)
 
 
 ### Frontend
