@@ -55,7 +55,7 @@ Dotenv is a zero-dependency module that loads environment variables from a .env 
 Bcrypt is a library used for hashing passwords, adding an extra layer of security to user authentication. It hashes passwords before storing them in the database, making it difficult for attackers to reverse-engineer the original passwords.
 
 ### Setup Instructions
-1. Clone the repository: `git clone https://github.com/https://github.com/Mayank06711/backend-project/repository.git`
+1. Clone the repository: `git clone https://github.com/Mayank06711/backend-project/repository.git`
 2. Install dependencies: `npm install`
 3. Create a `.env` file and add environment variables such as `PORT`, `MONGODB_URI`, `JWT_SECRET`, etc.
 4. Start the server: `npm start`
