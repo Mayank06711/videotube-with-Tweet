@@ -5,7 +5,7 @@ import {User} from "../models/user.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import asyncHandler from "../utils/asyncHandler.js"
-import {uploadOnCloudinary} from "../utils/cloudinary.fileupload.js"
+import {uploadOnCloudinary,deleteOnCloudinaryVideo} from "../utils/cloudinary.fileupload.js"
 
 //  TODO: While deleting I am not deleting video/files from the cloudinary
 /*--------------------GET ALL VIDEOS---------------- */
