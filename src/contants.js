@@ -1,5 +1,5 @@
 export const DB_NAME = "videotube"
-export const DB_PASSWORD = "LkjtCCSuWV8qPS1r"  // password for authentication (default of user name mayank93soni ans bkcendyoutueb
+export const DB_PASSWORD = "this is removed and can be seen in .env"  // password for authentication (default of user name mayank93soni ans bkcendyoutueb
 /* 
 
 video ko direct cloudnary se nii lena hai 
