@@ -42,8 +42,23 @@
   try {
     if(!oldFilePublicId) return null;
     // delete the file on cloudinary.
-    const response = await cloudinary.uploader.destroy(oldFilePublicId, { invalidate: true, resource_type: 'video'});
-    console.log("File deleted on cloudinary", oldFilePublicId);
+    const public_id = oldFilePublicId.split("/").pop().split(".")[0]
+    const response = await cloudinary.uploader.destroy(public_id, { invalidate: true, resource_type: 'video'});
+    console.log("File deleted on cloudinary", oldFilePublicId, "public_id", public_id);
+    return response;
+  } 
+  catch (error) {
+    return error;
+  }
+};
+
+const deleteOnCloudinaryImage = async (oldFilePublicId) => {
+  try {
+    if(!oldFilePublicId) return null;
+    // delete the file on cloudinary.
+    const public_id = oldFilePublicId.split("/").pop().split(".")[0]
+    const response = await cloudinary.uploader.destroy(public_id, { invalidate: true, resource_type: 'raw'});
+    console.log("File deleted on cloudinary", oldFilePublicId, "public_id", public_id);
     return response;
   } 
   catch (error) {
@@ -52,4 +67,4 @@
 };
 
 // for image resource-type raw
-export {uploadOnCloudinary, deleteOnCloudinaryVideo}
+export {uploadOnCloudinary, deleteOnCloudinaryVideo, deleteOnCloudinaryImage}

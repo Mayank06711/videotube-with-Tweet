@@ -3,7 +3,7 @@
  import asyncHandler from "../utils/asyncHandler.js";
  import { ApiError } from "../utils/ApiError.js";
  import { User } from "../models/user.model.js";
- import { uploadOnCloudinary } from "../utils/cloudinary.fileupload.js";
+ import { uploadOnCloudinary , deleteOnCloudinaryImage} from "../utils/cloudinary.fileupload.js";
  import { ApiResponse } from "../utils/ApiResponse.js";
  import  Jwt  from "jsonwebtoken";
 import mongoose, { isValidObjectId } from "mongoose";
@@ -394,25 +394,40 @@ console.log("fullName email user password : ", fullName, email, username, passwo
       throw new ApiError(400, "Avatar file not found : Upload avatar")
     }
     
-     const avatar = await uploadOnCloudinary(avatarLocalPath);
-     console.log(avatar,"Avatar updated")
-     if (!avatar.url) {
-        throw new ApiError(400, "Error while uploading avatar")
-     }
-   const user =   await User.findByIdAndUpdate(
-      req.user?._id,
+     try {
+      const avatar = await uploadOnCloudinary(avatarLocalPath);
+      
+      //console.log(avatar,"Avatar updated")
+      if (!avatar.url) {
+         throw new ApiError(400, "Error while uploading avatar")
+      }
+      
+      const deleteUserAvatar = await User.findById(req.user?._id)
+      // console.log("1" ,deleteUserAvatar
+      
+      if (deleteUserAvatar) {
+       // console.log("2", avatar.url)
+         await deleteOnCloudinaryImage(deleteUserAvatar.avatar);
+      }
 
-      {
-        $set:{
-          avatar:avatar.url
-        }
-      },
-      {new:true}
-      ).select("-password")
-      return res 
-      .status(200)
-      .json(new ApiResponse(200, user, "Your avatar has been updated"))
-   })
+      const user =   await User.findByIdAndUpdate(
+         req.user?._id,
+ 
+       {
+         $set:{
+           avatar:avatar.url
+         }
+       },
+       {new:true}
+       ).select("-password")
+       return res 
+       .status(200)
+       .json(new ApiResponse(200, user, "Your avatar has been updated"))
+     } catch (error) {
+       throw new ApiError(500,"Error while updating avatar")
+     }
+   
+    })
 
   //  --------------- update coverImage  ---------------
   const updateUserCoverImage = asyncHandler(async (req, res) =>{
@@ -423,25 +438,41 @@ console.log("fullName email user password : ", fullName, email, username, passwo
       throw new ApiError(400, "Cover image file not found : Upload cover image")
     }
     
-     const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+     try {
+      
+      const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+      
+      if (!coverImage.url) {
+         throw new ApiError(400, "Error while uploading cover image")
+      }
+      
+      const deleteUserCoverImage = await User.findById(req.user?._id)
+      // console.log("1" ,deleteVideoCoverImage)
+      
+      if (deleteUserCoverImage) {
+       // console.log("2", coverImage.url)
+         await deleteOnCloudinaryImage(deleteUserCoverImage.coverImage);
+      }
 
-     if (!coverImage.url) {
-        throw new ApiError(400, "Error while uploading cover image")
+      // console.log("1", coverImage.url)
+        const user = await User.findByIdAndUpdate(
+         req.user._id,
+         {
+           $set:{
+             coverImage:coverImage.url
+           }
+         },
+         {new:true}      
+       ).select("-password")
+   console.log(user, "2")
+     return res 
+      .status(200)
+      .json( new ApiResponse(200, user, "coverImage updated" ))
+      
+     } catch (error) {
+       throw new ApiError(500,"Error while updating cover image")
      }
-    const user = await User.findByIdAndUpdate(
-        req.user?._id,
-        {
-          $set:{
-            coverImage:coverImage.url
-          }
-        },
-        {new:true}      
-    ).select("-password")
-
-    return res 
-  .status(200)
-  .json( new ApiResponse(200, user, "coverImage updated" ))
-  })
+    })
 
   // ----------------------get user profile----------------------------
 

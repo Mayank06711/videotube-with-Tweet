@@ -68,12 +68,18 @@ const updateTweet = asyncHandler(async (req, res) => {
     const {tweet_Id} = req.params
     const {tweet} = req.body
 
-    console.log(tweet,tweet_Id ,"tweet and its id")
+    //console.log(tweet,tweet_Id ,"tweet and its id")
 
     if (!(tweet || tweet_Id)) {
         throw new ApiError(403, "tweet or tweet_Id is not provided")
     }
     try {
+        const existingTweets = await Tweet.findOne({ _id: tweet_Id, owner: req.user._id });
+        console.log(existingTweets,"Tweets fetched")
+        if (!existingTweets) {
+            console.log(existingTweets, "not auhtenticated user")
+             throw new ApiError(401, `Tweet not found u can not update this: ${req.user.username} :tweet`)
+        }
         const updatedTweet = await Tweet.findByIdAndUpdate(tweet_Id,
                   {
                     content : tweet
