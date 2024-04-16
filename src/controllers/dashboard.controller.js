@@ -39,10 +39,11 @@ const getChannelStats = asyncHandler(async (req, res) => {
             numOfVideos = videos.length
 
             channelStats.push(numOfVideos)
-
-            const views = videos.map(views => views.view) //
-
-            channelStats.push(views.length)
+            let totalView = 0
+            //console.log(totalView)
+            const views = videos.map(views =>totalView= totalView+views.view) //
+           // console.log(views, views.length, totalView)
+            channelStats.push(totalView)
            }
 
            //-------------numOfLikes-------------------
