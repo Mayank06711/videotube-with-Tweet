@@ -14,11 +14,14 @@ import {uploadOnCloudinary, deleteOnCloudinaryVideo, deleteOnCloudinaryImage} fr
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, query, sortBy, sortType, user_Id } = req.query
+    const { page = 1, limit = 10, query, sortBy, sortType } = req.query
     //TODO: get all videos based on query, sort, pagination
-    if (!(query || isValidObjectId(user_Id))) {
-        throw new ApiError(400, "Required field: query or userId")
-    }
+    const user_Id = req.user._id
+
+    // if (!(query || isValidObjectId(user_Id))) {
+    //     throw new ApiError(400, "Required field: query or userId")
+    // } bcz it is not compulsary 
+
     console.log(query, sortType, sortBy, user_Id,"query, sortType, sortBy, sortBy")
     try{
       // Parse page and limit parameters
@@ -157,7 +160,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     }
 
     const video = await Video.aggregate(pipeline);
-
+    const videoAggregate = await Video.aggregatePaginate(pipeline)
     console.log(video, "from pipeline getallvideos")
 
     if (!(video || video.length === (0 || null))) {
@@ -165,7 +168,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     }
     res
     .status(200)
-    .json(new ApiResponse(200, video, "Video Retrived Successfully"))
+    .json(new ApiResponse(200, {video,videoAggregate}, "Video aggregated and paginated  Retrived Successfully"))
     
      } catch (error) {
         throw new ApiError(500,error, "Some error occurred while getting your video") 
