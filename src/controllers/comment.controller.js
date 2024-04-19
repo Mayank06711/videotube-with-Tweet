@@ -132,7 +132,7 @@ const deleteComment = asyncHandler(async (req, res) => {
             throw new ApiError(404, "comment not found : See if comment id is correct")
         }
        
-        if (comment.owner.toString() !== req.user.id.toString()) {
+        if (comment.owner.toString() !== req.user._id.toString()) {
             throw new ApiError(403, "You are not allowed to delete this comment")
         }
         
