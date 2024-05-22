@@ -46,6 +46,9 @@ import dashboardRouter from "./routes/dashboard.route.js"
 // route declarations
 
 // Mounting the userRouter middleware at the "/api/v1/users" endpoint
+app.get("/him",(req, res)=>{
+  res.send("hello")
+})
 
 app.use("/api/v1/users", userRouter);   // here api/v1/users routes will act as prefix and controll will go to userRegister
 
