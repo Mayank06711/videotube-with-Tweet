@@ -82,8 +82,8 @@ console.log("fullName email user password : ", fullName, email, username, passwo
                           // step 4
 
   const avatarLocalPath = req.files?.avatar[0]?.path; // from multer we get this access i.e files and avatar[0] from multer will conatin path
-  
-  console.log(avatarLocalPath , req.files, "avatarLocalPath see me in USERCONTROLLER")
+
+  console.log(avatarLocalPath , "and  l l l l cover ---->", req.files?.coverImage[0]?.path,"file \n",req.files, "avatarLocalPath see me in USERCONTROLLER \n")
  
   //const coverImageLocalPath = req.files?.coverImage[0]?.path; // from multer we get this access , but we were nere not able to proceed further due to optional chainig i user does not upload coverimage it will be none and error will be thoworn
   let coverImageLocalPath;
@@ -123,8 +123,8 @@ console.log("fullName email user password : ", fullName, email, username, passwo
     password,
     username: username.toLowerCase(),
   });
-  console.log("huii 3333 ")
-  console.log(password, "password is");
+  console.log("huii from line 126 ")
+  console.log(password, "password of user");
                          // step 7 find created user
   
   const createdUser = await User.findById(user._id).select(
