@@ -70,6 +70,18 @@ class ApiFeature {
 
 export default ApiFeature; // Ensure this is added to export the class for use in other modules
 
+    
+/*
+                                        Explanation:
+Constructor: Initializes the class with a Mongoose query object and a query string object (typically derived from the request query parameters).
+custom_Filter(): Filters the query based on specified comparison operators (gte, gt, lte, lt). It first converts the query string to JSON, replaces the operators with their MongoDB equivalents (adding $), and then parses it back to an object to apply as a filter.
+custom_Sort(): Sorts the query results based on fields specified in the query string. If no sort field is specified, it defaults to sorting by the createdAt field in descending order.
+custom_LimitFields(): Limits the fields returned in the query results. If no fields are specified, it excludes the __v field by default.
+custom_Paginate(): Paginates the query results based on page and limit parameters. It calculates the number of documents to skip and the limit to apply.
+By returning this at the end of each method, the class supports method chaining, allowing you to apply multiple query customizations in sequence.
+*/
+
+
 
 
                              // how to use it 
