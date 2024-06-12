@@ -8,7 +8,7 @@ import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import asyncHandler from "../utils/asyncHandler.js"
 import {uploadOnCloudinary, deleteOnCloudinaryVideo, deleteOnCloudinaryImage} from "../utils/cloudinary.fileupload.js"
-
+ import axios from "axios";  // Importing the request module for HTTP requests
 //  TODO: While deleting I am not deleting video/files from the cloudinary
 /*--------------------GET ALL VIDEOS---------------- */
 
@@ -432,13 +432,61 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 }) // DONE if ispublished is true video will be shown in othersise not
 
 
+/*----------------STREAMVIDEO-----------------*/
+const streamVideo = asyncHandler(async (req, res) => {
+    const { video_Id } = req.params;
+    console.log("1")
+    if (!mongoose.Types.ObjectId.isValid(video_Id)) {
+        throw new ApiError(400, 'Invalid video ID');
+    }
+
+    const video = await Video.findById(video_Id);
+    if (!video) {
+        throw new ApiError(404, 'Video not found');
+    }
+
+    const videoUrl = video.videoFile;
+
+    axios({
+        method: 'get',
+        url: videoUrl,
+        responseType: 'stream'
+    }).then(videoRes => {
+        if (videoRes.status !== 200) {
+            throw new ApiError(500, 'Error fetching video from Cloudinary');
+        }
+
+        res.writeHead(videoRes.status, videoRes.headers);
+        let totalBytes = 0;
+        const startTime = Date.now();
+
+        videoRes.data.on('data', chunk => {
+            totalBytes += chunk.length;
+            const elapsedTime = (Date.now() - startTime) / 1000; // in seconds
+            const rate = (totalBytes / elapsedTime).toFixed(2); // bytes per second
+
+            console.log(`Chunk Size: ${chunk.length} bytes`);
+            console.log(`Total Bytes: ${totalBytes} bytes`);
+            console.log(`Streaming Rate: ${rate} bytes/sec`);
+        });
+        //console.log("\n =>", videoRes.data , "tv \n")
+        videoRes.data.pipe(res);
+    }).catch(err => {
+        throw new ApiError(500, 'Error streaming video');
+    });
+});
+
+
+
+
 export {
     getAllVideos,
     publishAVideo,
     getVideoById,
     updateVideo,
     deleteVideo,
-    togglePublishStatus
+    togglePublishStatus,
+    streamVideo
 }
 
 

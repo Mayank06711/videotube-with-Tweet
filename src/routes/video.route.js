@@ -4,6 +4,7 @@ import {
     getAllVideos,
     getVideoById,
     publishAVideo,
+    streamVideo,
     togglePublishStatus,
     updateVideo,
 } from "../controllers/video.controller.js"
@@ -37,6 +38,7 @@ router
     .delete(deleteVideo)
     .patch(upload.single("thumbnail"), updateVideo);
 
+router.route("/stream/:video_Id").get(streamVideo) // you have to destruct req.params as
 router.route("/toggle/publish/:video_Id").patch(togglePublishStatus);
 
 export default router
